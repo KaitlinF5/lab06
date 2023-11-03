@@ -29,8 +29,14 @@ diamonds <- diamonds %>% rename(
 ```{r}
 # Do some preliminary investigations & cleaning
 
+diamonds[duplicated(diamonds), ]
 
 
+diamonds <- diamonds %>%
+  distinct() %>%
+  filter(length_mm != 0)
+
+summary(diamonds)
 
 ```
 
@@ -44,21 +50,24 @@ diamonds <- diamonds %>%
 
 # Overall table_mm arithmetic mean?
 
-
+diamonds %>%
+  summarise(mean_l = mean(length_mm))
 
 
 
 
 # table_mm arithmetic mean within each clarity category
 
-
+diamonds %>%
+  group_by(clarity) %>%
+  summarise(table_mean = mean(table_mm))
 
 
 
 
 ```
 
-_Add your comment here_
+_The table mean decreases as the clarity of the diamonds increase (from included to flawless)_
 
 ## Exercise 3
 
