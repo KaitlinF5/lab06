@@ -28,16 +28,16 @@ diamonds <- diamonds %>% rename(
 
 ```{r}
 # Do some preliminary investigations & cleaning
+ggplot(data = diamonds,
+       mapping = aes(x = width_mm,
+                     y = depth_mm)) +
+  geom_point()
 
-diamonds[duplicated(diamonds), ]
-
-
-diamonds <- diamonds %>%
-  distinct() %>%
-  filter(length_mm != 0)
-
-summary(diamonds)
-
+diamonds <- diamonds %>% filter(
+  length_mm != 0, length_mm <= 20,
+  width_mm != 0, width_mm <= 20,
+  depth_mm != 0, depth_mm <= 20
+)
 ```
 
 
@@ -51,7 +51,7 @@ diamonds <- diamonds %>%
 # Overall table_mm arithmetic mean?
 
 diamonds %>%
-  summarise(mean_l = mean(length_mm))
+  summarise(avg_table = mean(table_mm, na.rm = T))
 
 
 
@@ -60,7 +60,7 @@ diamonds %>%
 
 diamonds %>%
   group_by(clarity) %>%
-  summarise(table_mean = mean(table_mm))
+  summarise(avg_table = mean(table_mm, na.rm = T))
 
 
 
@@ -73,14 +73,14 @@ _The table mean decreases as the clarity of the diamonds increase (from included
 
 _Do derivation on paper, unless you know how to write LaTeX code_
 
-
 ## Exercise 4
 
 ```{r}
 # Write gmean() command
-
-
-
+gmean <- function(x){
+  xbar_g <- exp(mean(log(x)))
+  return(xbar_g)
+}
 ```
 
 ## Exercise 5
@@ -98,8 +98,9 @@ test_data <- list(
 
 
 # Create for loop to test gmean() on the above examples
-
-
+for(i in seq_along(test_data)){
+  print(gmean(test_data[[i]]))
+}
 ```
 
 
@@ -107,6 +108,21 @@ test_data <- list(
 
 ```{r}
 # Copy gmean() from Ex4 and edit it to check the input
+gmean <- function(x){
+  
+  if(!is.numeric(x)){
+    warning("Vector 'x' is not numeric")
+    return(NaN)
+  }
+    
+  if(any(x <= 0)){
+    warning("Vector 'x' must have strictly positive numbers.")
+    return(NaN)
+  }
+  
+  xbar_g <- exp(mean(log(x)))
+  return(xbar_g)
+}
 
 
 
@@ -114,7 +130,9 @@ test_data <- list(
 
 # Copy your code from Ex 5 to test your new command
 
-
+for(i in seq_along(test_data)){
+  print(gmean(test_data[[i]]))
+}
 
 
 
@@ -126,21 +144,23 @@ test_data <- list(
 ```{r}
 # Overall table_mm geometic mean?
 
-
-
-
+diamonds %>% 
+  summarise(
+    avg_table = gmean(table_mm)
+  )
 
 
 # table_mm geometic mean within each clarity category
 
-
-
-
-
+diamonds %>% 
+  group_by(clarity) %>%
+  summarise(
+    avg_table = gmean(table_mm)
+  )
 
 ```
 
-_Add your comment here_
+_Diamonds with a better clarity have a smaller geometric mean. Also, the geometric means are typically smaller than the arithmetic mean for this data._
 
 
 ## Exercise 8 (optional)
@@ -149,10 +169,23 @@ _Add your comment here_
 # Create gmean2() that computes the geometric mean 
 #   that uses the original definition
 
+gmean2 <- function(x){
+  
+  if(!is.numeric(x)){
+    warning("Vector 'x' is not numeric")
+    return(NaN)
+  }
+    
+  if(any(x <= 0)){
+    warning("Vector 'x' must have strictly positive numbers.")
+    return(NaN)
+  }
+  
+  xbar_g <- prod(x)^(1/length(x))
+  return(xbar_g)
+}
 
-
-
-
+gmean(test_data$test1)
 
 ```
 
@@ -162,10 +195,25 @@ _Add your comment here_
 ```{r}
 # Create a function that computes the harmonic mean
 
+hmean <- function(x){
+  
+  if(!is.numeric(x)){
+    warning("Vector 'x' is not numeric")
+    return(NaN)
+  }
+    
+  if(any(x <= 0)){
+    warning("Vector 'x' must have strictly positive numbers.")
+    return(NaN)
+  }
+  
+  xbar_h <- 1 / mean(1 / x)
+  return(xbar_h)
+}
 
-
-
-
-
+diamonds %>% 
+  summarise(
+    avg_table = hmean(table_mm)
+  )
 
 ```
